@@ -3,6 +3,7 @@ tensorflow==2.16.1
 
 # Web UI
 gradio==4.44.1
+huggingface_hub<1.0
 
 # Data handling
 pandas==2.2.2
