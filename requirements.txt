@@ -1,0 +1,18 @@
+# Core ML / deep learning
+tensorflow==2.16.1
+
+# Web UI
+gradio==4.44.1
+
+# Data handling
+pandas==2.2.2
+numpy==1.26.4
+
+# Image handling
+Pillow==10.4.0
+
+# Classical ML utilities (train/test split, metrics)
+scikit-learn==1.5.1
+
+# Plotting (training curves)
+matplotlib==3.9.1
