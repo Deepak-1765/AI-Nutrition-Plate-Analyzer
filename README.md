@@ -30,12 +30,15 @@ This version is trained on a **custom Indian food dataset (12 classes)**.
 
 ## ✨ Features
 
-- 📷 Upload any food photo (JPG/PNG) through a clean, responsive Gradio UI
+- 📷 Upload any food photo (JPG/PNG) through a clean, card-based Gradio UI
 - 🧠 CNN-based food classification (12 classes) with a confidence score
 - 🔍 Top-3 prediction breakdown for transparency
 - 🍎 Automatic nutrition facts lookup: Calories, Protein, Carbohydrates, Fat, Fiber, Serving size
-- 💯 0–10 Health Score for each food
+- 💯 0–10 Health Score for each food, color-coded
 - 📝 Rule-based diet recommendation (combines a curated tip with dynamic macro analysis)
+- 👤 **Optional profile (age, height, weight)** — computes BMI locally and
+  shows a personalized, rule-based note on how well *this specific meal*
+  fits a weight-gain / maintenance / weight-management goal
 - 🛡️ Graceful handling of invalid uploads / missing images / low-confidence predictions
 - ⚙️ Modular codebase: model training, inference, and UI are cleanly separated
 
@@ -53,7 +56,16 @@ Serving:            250 g
 Health Score:       4.5 / 10
 Recommendation:     High protein but rich in cream and butter. Best paired
                     with a whole wheat roti and salad, in moderation.
+
+Your Profile:       BMI 29.4 (Overweight)
+For this meal:      This meal is fairly calorie-dense — a smaller portion
+                    or a side salad would help support gradual, healthy
+                    weight management.
 ```
+
+> The BMI feature is entirely optional, computed locally with the
+> standard `weight(kg) / height(m)²` formula, and nothing is stored —
+> it's plain rule-based Python, not a diagnosis. See the Disclaimer below.
 
 ---
 
@@ -231,4 +243,9 @@ screenshots/
 This is an educational project. Nutrition values are approximate
 reference estimates and the health score is a simplified heuristic —
 this app is **not** a substitute for professional dietary or medical
-advice.
+advice. The BMI feature uses the standard adult BMI formula and WHO
+category thresholds for a general-audience estimate; BMI does not
+account for muscle mass, body composition, age-specific ranges, or
+individual health conditions, and should not be used to self-diagnose
+being under/overweight. Consult a doctor or registered dietitian for
+personal health guidance.
