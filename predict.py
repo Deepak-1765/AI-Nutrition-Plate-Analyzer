@@ -15,6 +15,10 @@ Responsibilities:
     4. Look up nutrition facts for the predicted class from nutrition.csv.
     5. Generate a simple, rule-based diet recommendation and health score
        explanation (on top of the static HealthScore stored in the CSV).
+    6. Optionally combine that with the user's BMI (from age/height/weight)
+       to produce a personalized, rule-based note about whether this meal
+       fits their weight goals. This is plain Python conditional logic --
+       no AI/LLM API calls, and no medical diagnosis.
 """
 
 import json
@@ -24,9 +28,9 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-# TensorFlow is imported lazily inside load_model() so that this module
-# can still be imported (e.g. for unit-testing the nutrition lookup logic)
-# in environments where TensorFlow isn't installed.
+# TensorFlow is imported lazily inside FoodPredictor.__init__ so that this
+# module can still be imported (e.g. for unit-testing the nutrition/BMI
+# logic) in environments where TensorFlow isn't installed.
 
 MODEL_PATH = "food_model.keras"
 CLASS_NAMES_PATH = "class_names.json"
@@ -59,7 +63,7 @@ class FoodPredictor:
             self.class_names = json.load(f)
 
         self.nutrition_df = pd.read_csv(nutrition_csv_path)
-        # Normalize the lookup key so "apple_pie" / "Apple Pie" both work
+        # Normalize the lookup key so "aloo_gobi" / "Aloo Gobi" both work
         self.nutrition_df["_lookup_key"] = (
             self.nutrition_df["Food"].str.strip().str.lower().str.replace(" ", "_")
         )
@@ -127,18 +131,13 @@ class FoodPredictor:
 
 
 # -------------------------------------------------------------------------
-# Rule-based recommendation helper
+# Rule-based recommendation helper (food-only, no profile needed)
 # -------------------------------------------------------------------------
 def generate_recommendation(nutrition: dict) -> str:
     """
     Generates a short, human-readable diet suggestion using simple
     rule-based logic on top of the macro data. This purposely does NOT
     call any AI/LLM API -- it's plain Python conditionals, as required.
-
-    The CSV already stores a curated `Recommendation` per food, but this
-    function shows how you could derive additional, dynamic tips from
-    the raw macros (e.g. if you add new foods without writing a custom
-    recommendation by hand).
     """
     tips = []
 
@@ -184,3 +183,104 @@ def health_score_label(score: float) -> str:
         return "Moderate — enjoy occasionally"
     else:
         return "Indulgent — treat food"
+
+
+def health_score_color(score: float) -> str:
+    """Maps a health score to a hex color for UI badges."""
+    if score >= 8:
+        return "#16a34a"   # green
+    elif score >= 6:
+        return "#65a30d"   # lime green
+    elif score >= 4:
+        return "#f59e0b"   # amber
+    else:
+        return "#dc2626"   # red
+
+
+# -------------------------------------------------------------------------
+# BMI + personalized, weight-goal-aware recommendation
+# -------------------------------------------------------------------------
+def calculate_bmi(weight_kg: float, height_cm: float) -> float:
+    """Standard BMI formula: weight(kg) / height(m)^2."""
+    if weight_kg is None or height_cm is None or height_cm <= 0 or weight_kg <= 0:
+        raise ValueError("Weight and height must be positive numbers.")
+    height_m = height_cm / 100.0
+    return weight_kg / (height_m ** 2)
+
+
+def bmi_category(bmi: float) -> str:
+    """Standard WHO adult BMI categories."""
+    if bmi < 18.5:
+        return "Underweight"
+    elif bmi < 25:
+        return "Normal weight"
+    elif bmi < 30:
+        return "Overweight"
+    else:
+        return "Obese"
+
+
+def bmi_color(category: str) -> str:
+    """Maps a BMI category to a hex color for UI badges."""
+    return {
+        "Underweight": "#2563eb",     # blue
+        "Normal weight": "#16a34a",   # green
+        "Overweight": "#f59e0b",      # amber
+        "Obese": "#dc2626",           # red
+    }.get(category, "#6b7280")
+
+
+def generate_personalized_advice(bmi_cat: str, nutrition: dict, age: float = None) -> str:
+    """
+    Combines the user's BMI category with the predicted meal's macros to
+    produce a short, rule-based note about how well this meal fits a
+    healthy-weight goal. Plain Python conditionals only -- this is a
+    simplified educational heuristic, not medical or dietary advice.
+    """
+    calories = nutrition["Calories"]
+    protein = nutrition["Protein"]
+    fat = nutrition["Fat"]
+    fiber = nutrition["Fiber"]
+
+    tips = []
+
+    if bmi_cat == "Underweight":
+        if calories >= 350:
+            tips.append(
+                "This is a good calorie-dense choice that can support healthy weight gain."
+            )
+        else:
+            tips.append(
+                "This meal is relatively light for a weight-gain goal — consider pairing it "
+                "with a calorie-dense side (nuts, dairy, whole grains)."
+            )
+        if protein < 15:
+            tips.append("Adding a protein-rich side would also support healthy muscle gain.")
+
+    elif bmi_cat == "Normal weight":
+        tips.append("This fits well within a balanced diet for maintaining your current weight.")
+        if fat >= 25 or calories >= 450:
+            tips.append("Keep the portion moderate to stay comfortably in your healthy range.")
+
+    elif bmi_cat == "Overweight":
+        if calories >= 400 or fat >= 20:
+            tips.append(
+                "This meal is fairly calorie-dense — a smaller portion or a side salad "
+                "would help support gradual, healthy weight management."
+            )
+        else:
+            tips.append("A reasonably light choice that fits well with a weight-management goal.")
+
+    elif bmi_cat == "Obese":
+        if calories >= 350 or fat >= 18:
+            tips.append(
+                "This meal is calorie- and fat-dense. A smaller portion, less oil, and extra "
+                "vegetables would better support your health goals."
+            )
+        else:
+            tips.append("This is a lighter option that aligns well with a weight-management plan.")
+
+    if age is not None and age >= 50 and fiber < 3:
+        tips.append("Fiber needs often increase with age — a fiber-rich side would help.")
+
+    return " ".join(tips)
