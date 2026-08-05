@@ -250,67 +250,89 @@ def analyze_food(image: Image.Image, age, height_cm, weight_kg):
 # ---------------------------------------------------------------------------
 CUSTOM_CSS = """
 :root {
-    --np-radius: 16px;
+    --np-radius: 20px;
+    --np-surface: #f8fafc;
+    --np-surface-soft: #ffffff;
+    --np-border: rgba(15, 23, 42, 0.08);
+    --np-shadow: 0 28px 60px rgba(15, 23, 42, 0.08);
 }
-.gradio-container { max-width: 1080px !important; margin: auto; }
-#np-title { text-align: center; margin-bottom: 0.1em; font-size: 2.1em; }
-#np-subtitle { text-align: center; color: var(--body-text-color-subdued); margin-bottom: 1.6em; }
+body { background: radial-gradient(circle at top, rgba(16, 185, 129, 0.12), transparent 26%), #f8fafc; }
+.gradio-container { max-width: 1120px !important; margin: auto; padding: 28px 20px; }
+#np-title { text-align: center; margin-bottom: 0.15em; font-size: 2.45rem; letter-spacing: -0.03em; }
+#np-subtitle { text-align: center; color: var(--body-text-color-subdued); margin: 0 auto 1.8em; max-width: 760px; line-height: 1.75; }
 
 .np-card {
     border-radius: var(--np-radius);
-    padding: 20px 22px;
-    background: var(--background-fill-secondary);
-    border: 1px solid var(--border-color-primary);
-    margin-bottom: 14px;
+    padding: 24px 24px;
+    background: var(--np-surface-soft);
+    border: 1px solid var(--np-border);
+    box-shadow: var(--np-shadow);
+    margin-bottom: 16px;
+}
+.np-card-placeholder, .np-card-error {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px dashed var(--np-border);
 }
 .np-card-placeholder p, .np-card-error p {
     margin: 0; color: var(--body-text-color-subdued); text-align: center;
 }
-.np-card-error { border-color: #dc2626; }
-.np-card-bmi { border-left: 4px solid var(--border-color-primary); }
+.np-card-error { border-color: #fca5a5; }
+.np-card-bmi { border-left: 5px solid var(--border-color-primary); }
 
-.np-card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.np-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .np-eyebrow {
-    text-transform: uppercase; font-size: 0.72em; letter-spacing: 0.06em;
-    color: var(--body-text-color-subdued); margin-bottom: 2px;
+    text-transform: uppercase; font-size: 0.72em; letter-spacing: 0.11em;
+    color: var(--body-text-color-subdued); margin-bottom: 4px;
 }
-.np-title { font-size: 1.5em; font-weight: 700; }
+.np-title { font-size: 1.6em; font-weight: 700; margin: 0; }
 
 .np-confidence { text-align: right; }
-.np-confidence-value { font-size: 1.3em; font-weight: 700; }
+.np-confidence-value { font-size: 1.45em; font-weight: 700; letter-spacing: -0.02em; }
 .np-confidence-label {
     font-size: 0.75em; color: var(--body-text-color-subdued); text-transform: uppercase;
 }
 
 .np-warning {
-    margin-top: 10px; padding: 8px 12px; border-radius: 10px;
-    background: rgba(245, 158, 11, 0.15); color: #b45309; font-size: 0.9em;
+    margin-top: 14px; padding: 12px 14px; border-radius: 14px;
+    background: rgba(249, 115, 22, 0.12); color: #c2410c; font-size: 0.94em;
 }
 
 .np-pill-row {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 18px 0;
 }
 .np-pill {
-    background: var(--background-fill-primary); border-radius: 12px;
-    padding: 10px 8px; text-align: center; border: 1px solid var(--border-color-primary);
+    background: #f8fbff; border-radius: 16px;
+    padding: 14px 12px; text-align: center; border: 1px solid rgba(15, 23, 42, 0.05);
+    min-height: 110px; display: grid; place-items: center;
 }
-.np-pill-icon { font-size: 1.2em; }
-.np-pill-value { font-weight: 700; font-size: 1.02em; margin-top: 2px; }
+.np-pill-icon { font-size: 1.3em; }
+.np-pill-value { font-weight: 700; font-size: 1.05em; margin-top: 6px; }
 .np-pill-label {
-    font-size: 0.72em; color: var(--body-text-color-subdued); text-transform: uppercase;
+    font-size: 0.74em; color: var(--body-text-color-subdued); text-transform: uppercase; margin-top: 6px;
 }
 
-.np-score-row { display: flex; align-items: center; gap: 10px; margin: 14px 0 10px; }
+.np-score-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 18px 0 10px; }
 .np-score-badge {
-    color: white; font-weight: 700; padding: 4px 12px; border-radius: 999px; font-size: 0.9em;
+    color: white; font-weight: 700; padding: 8px 16px; border-radius: 999px; font-size: 0.95em;
 }
-.np-score-label { font-weight: 600; }
+.np-score-label { font-weight: 700; color: #111827; }
 
-.np-tip { font-size: 0.94em; line-height: 1.5; }
+.np-tip { font-size: 0.95em; line-height: 1.75; color: #344054; }
 .np-tip-secondary { color: var(--body-text-color-subdued); }
+
+.np-section-note {
+    border-radius: 18px; background: rgba(16, 185, 129, 0.1);
+    padding: 16px 18px; margin-bottom: 18px; color: #0f766e; font-weight: 500;
+}
+
+#analyze-btn { width: 100%; }
+#supported-list { font-size: 0.95em; color: var(--body-text-color-subdued); margin-top: 12px; }
+#supported-list strong { color: #111827; }
+
+.gr-button { min-height: 52px; }
 """
 
-with gr.Blocks(title="AI Nutrition Plate Analyzer", theme=gr.themes.Soft(primary_hue="green"), css=CUSTOM_CSS) as demo:
+with gr.Blocks(title="AI Nutrition Plate Analyzer", theme=gr.themes.Soft(primary_hue="green", secondary_hue="teal"), css=CUSTOM_CSS) as demo:
     gr.Markdown("# 🥗 AI Nutrition Plate Analyzer", elem_id="np-title")
     gr.Markdown(
         "Upload a photo of a food item to identify it and get instant "
@@ -318,10 +340,11 @@ with gr.Blocks(title="AI Nutrition Plate Analyzer", theme=gr.themes.Soft(primary
         elem_id="np-subtitle",
     )
 
-    with gr.Row():
+    with gr.Row(equal_height=True):
         # ------------------------- Left column: inputs -------------------------
-        with gr.Column(scale=1):
-            image_input = gr.Image(type="pil", label="Upload Food Image", height=300)
+        with gr.Column(scale=1, min_width=360):
+            gr.Markdown("## Upload your meal")
+            image_input = gr.Image(type="pil", label="Food photo", height=340)
 
             with gr.Accordion("👤 Your Profile (optional)", open=False):
                 gr.Markdown(
@@ -332,15 +355,25 @@ with gr.Blocks(title="AI Nutrition Plate Analyzer", theme=gr.themes.Soft(primary
                 height_input = gr.Number(label="Height (cm)", minimum=50, maximum=250)
                 weight_input = gr.Number(label="Weight (kg)", minimum=10, maximum=300)
 
-            analyze_btn = gr.Button("🔍 Analyze Food", variant="primary")
+            analyze_btn = gr.Button("Analyze Food", variant="primary", elem_id="analyze-btn")
             gr.Markdown(
-                "*Supported: Aloo Gobi, Biryani, Butter Chicken, Chana Masala, "
-                "Chapati, Dal Makhani, Dal Tadka, Gulab Jamun, Jalebi, Kadai "
-                "Paneer, Naan, Poha.*"
-            )
+    """
+    <div id="supported-list">
+        Supported dishes:
+        <strong>
+            Aloo Gobi, Biryani, Butter Chicken, Chana Masala,
+            Chapati, Dal Makhani, Dal Tadka, Gulab Jamun,
+            Jalebi, Kadai Paneer, Naan, Poha
+        </strong>.
+    </div>
+    """,
+    markdown=False,
+)
+            gr.HTML("<div class=\"np-section-note\">Pro tip: use a clear top-down photo of the plated meal for best results.</div>")
 
         # ------------------------- Right column: results -----------------------
-        with gr.Column(scale=1):
+        with gr.Column(scale=1, min_width=360):
+            gr.Markdown("## Analysis results")
             result_output = gr.HTML(_placeholder_card())
             bmi_output = gr.HTML(_bmi_placeholder_card())
 
@@ -351,7 +384,6 @@ with gr.Blocks(title="AI Nutrition Plate Analyzer", theme=gr.themes.Soft(primary
     outputs = [result_output, bmi_output, top_k_output]
 
     analyze_btn.click(fn=analyze_food, inputs=inputs, outputs=outputs)
-    # Also auto-run when a new image is uploaded, for convenience
     image_input.change(fn=analyze_food, inputs=inputs, outputs=outputs)
 
     gr.Markdown(
