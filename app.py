@@ -356,13 +356,16 @@ with gr.Blocks(title="AI Nutrition Plate Analyzer", theme=gr.themes.Soft(primary
                 weight_input = gr.Number(label="Weight (kg)", minimum=10, maximum=300)
 
             analyze_btn = gr.Button("Analyze Food", variant="primary", elem_id="analyze-btn")
-            gr.Markdown(
-   gr.Markdown("""
-**Supported dishes:** Aloo Gobi, Biryani, Butter Chicken, Chana Masala,
-Chapati, Dal Makhani, Dal Tadka, Gulab Jamun,
-Jalebi, Kadai Paneer, Naan, Poha
-""")
-            gr.HTML("<div class=\"np-section-note\">Pro tip: use a clear top-down photo of the plated meal for best results.</div>")
+
+            gr.Markdown("""
+                            **Supported dishes:** Aloo Gobi, Biryani, Butter Chicken, Chana Masala,
+                                Chapati, Dal Makhani, Dal Tadka, Gulab Jamun,
+                                    Jalebi, Kadai Paneer, Naan, Poha
+                                                                        """)
+
+            gr.HTML(
+            '<div class="np-section-note">Pro tip: use a clear top-down photo of the plated meal for best results.</div>'
+            )
 
         # ------------------------- Right column: results -----------------------
         with gr.Column(scale=1, min_width=360):
