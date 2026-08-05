@@ -245,92 +245,501 @@ def analyze_food(image: Image.Image, age, height_cm, weight_kg):
     return result_html, bmi_html, top_k_markdown
 
 
-# ---------------------------------------------------------------------------
-# Gradio UI
-# ---------------------------------------------------------------------------
-CUSTOM_CSS = """
-:root {
-    --np-radius: 20px;
-    --np-surface: #f8fafc;
-    --np-surface-soft: #ffffff;
-    --np-border: rgba(15, 23, 42, 0.08);
-    --np-shadow: 0 28px 60px rgba(15, 23, 42, 0.08);
-}
-body { background: radial-gradient(circle at top, rgba(16, 185, 129, 0.12), transparent 26%), #f8fafc; }
-.gradio-container { max-width: 1120px !important; margin: auto; padding: 28px 20px; }
-#np-title { text-align: center; margin-bottom: 0.15em; font-size: 2.45rem; letter-spacing: -0.03em; }
-#np-subtitle { text-align: center; color: var(--body-text-color-subdued); margin: 0 auto 1.8em; max-width: 760px; line-height: 1.75; }
+:root{
+    --primary:#10b981;
+    --primary-dark:#059669;
+    --secondary:#3b82f6;
 
-.np-card {
-    border-radius: var(--np-radius);
-    padding: 24px 24px;
-    background: var(--np-surface-soft);
-    border: 1px solid var(--np-border);
-    box-shadow: var(--np-shadow);
-    margin-bottom: 16px;
-}
-.np-card-placeholder, .np-card-error {
-    background: rgba(255, 255, 255, 0.85);
-    border: 1px dashed var(--np-border);
-}
-.np-card-placeholder p, .np-card-error p {
-    margin: 0; color: var(--body-text-color-subdued); text-align: center;
-}
-.np-card-error { border-color: #fca5a5; }
-.np-card-bmi { border-left: 5px solid var(--border-color-primary); }
+    --surface:#ffffff;
+    --surface2:#f8fafc;
 
-.np-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-.np-eyebrow {
-    text-transform: uppercase; font-size: 0.72em; letter-spacing: 0.11em;
-    color: var(--body-text-color-subdued); margin-bottom: 4px;
-}
-.np-title { font-size: 1.6em; font-weight: 700; margin: 0; }
+    --border:rgba(15,23,42,.08);
 
-.np-confidence { text-align: right; }
-.np-confidence-value { font-size: 1.45em; font-weight: 700; letter-spacing: -0.02em; }
-.np-confidence-label {
-    font-size: 0.75em; color: var(--body-text-color-subdued); text-transform: uppercase;
+    --shadow:
+        0 20px 50px rgba(15,23,42,.08);
+
+    --radius:22px;
+
+    --transition:.3s ease;
 }
 
-.np-warning {
-    margin-top: 14px; padding: 12px 14px; border-radius: 14px;
-    background: rgba(249, 115, 22, 0.12); color: #c2410c; font-size: 0.94em;
+/* ===========================
+Background
+=========================== */
+
+body{
+    background:
+    radial-gradient(circle at top left,#10b98120,transparent 30%),
+    radial-gradient(circle at top right,#3b82f620,transparent 35%),
+    linear-gradient(#f9fafb,#eef4f8);
 }
 
-.np-pill-row {
-    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 18px 0;
-}
-.np-pill {
-    background: #f8fbff; border-radius: 16px;
-    padding: 14px 12px; text-align: center; border: 1px solid rgba(15, 23, 42, 0.05);
-    min-height: 110px; display: grid; place-items: center;
-}
-.np-pill-icon { font-size: 1.3em; }
-.np-pill-value { font-weight: 700; font-size: 1.05em; margin-top: 6px; }
-.np-pill-label {
-    font-size: 0.74em; color: var(--body-text-color-subdued); text-transform: uppercase; margin-top: 6px;
+.gradio-container{
+    max-width:1180px!important;
+    margin:auto;
+    padding:30px;
 }
 
-.np-score-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 18px 0 10px; }
-.np-score-badge {
-    color: white; font-weight: 700; padding: 8px 16px; border-radius: 999px; font-size: 0.95em;
+/* ===========================
+Header
+=========================== */
+
+#np-title{
+    text-align:center;
+    font-size:2.9rem;
+    font-weight:800;
+    letter-spacing:-1px;
+
+    background:linear-gradient(90deg,#10b981,#3b82f6);
+
+    -webkit-background-clip:text;
+    color:transparent;
+
+    margin-bottom:8px;
 }
-.np-score-label { font-weight: 700; color: #111827; }
 
-.np-tip { font-size: 0.95em; line-height: 1.75; color: #344054; }
-.np-tip-secondary { color: var(--body-text-color-subdued); }
+#np-subtitle{
 
-.np-section-note {
-    border-radius: 18px; background: rgba(16, 185, 129, 0.1);
-    padding: 16px 18px; margin-bottom: 18px; color: #0f766e; font-weight: 500;
+    text-align:center;
+
+    font-size:1.05rem;
+
+    color:#64748b;
+
+    max-width:760px;
+
+    margin:auto auto 35px;
+
+    line-height:1.8;
+
 }
 
-#analyze-btn { width: 100%; }
-#supported-list { font-size: 0.95em; color: var(--body-text-color-subdued); margin-top: 12px; }
-#supported-list strong { color: #111827; }
+/* ===========================
+Cards
+=========================== */
 
-.gr-button { min-height: 52px; }
-"""
+.np-card{
+
+    background:rgba(255,255,255,.75);
+
+    backdrop-filter:blur(18px);
+
+    border:1px solid rgba(255,255,255,.35);
+
+    border-radius:var(--radius);
+
+    padding:26px;
+
+    box-shadow:var(--shadow);
+
+    transition:var(--transition);
+
+}
+
+.np-card:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:
+        0 35px 80px rgba(15,23,42,.14);
+
+}
+
+.np-card-placeholder{
+
+    border:2px dashed rgba(100,116,139,.25);
+
+    background:rgba(255,255,255,.55);
+
+}
+
+.np-card-error{
+
+    border-left:5px solid #ef4444;
+
+    background:#fff5f5;
+
+}
+
+.np-card-bmi{
+
+    border-left:5px solid var(--primary);
+
+}
+
+/* ===========================
+Titles
+=========================== */
+
+.np-card-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:flex-start;
+
+    gap:20px;
+
+}
+
+.np-eyebrow{
+
+    color:#94a3b8;
+
+    text-transform:uppercase;
+
+    font-size:.75rem;
+
+    letter-spacing:2px;
+
+}
+
+.np-title{
+
+    font-size:1.65rem;
+
+    font-weight:700;
+
+}
+
+/* ===========================
+Confidence
+=========================== */
+
+.np-confidence{
+
+    text-align:right;
+
+}
+
+.np-confidence-value{
+
+    font-size:2rem;
+
+    font-weight:800;
+
+    color:var(--primary);
+
+}
+
+.np-confidence-label{
+
+    color:#94a3b8;
+
+    text-transform:uppercase;
+
+    font-size:.75rem;
+
+}
+
+/* ===========================
+Warning Box
+=========================== */
+
+.np-warning{
+
+    margin-top:18px;
+
+    padding:16px;
+
+    border-radius:18px;
+
+    background:#fff7ed;
+
+    border-left:5px solid #f97316;
+
+    color:#c2410c;
+
+}
+
+/* ===========================
+Metric Cards
+=========================== */
+
+.np-pill-row{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+
+    gap:18px;
+
+    margin:24px 0;
+
+}
+
+.np-pill{
+
+    background:linear-gradient(180deg,#ffffff,#f8fafc);
+
+    border-radius:18px;
+
+    border:1px solid rgba(148,163,184,.15);
+
+    padding:22px;
+
+    text-align:center;
+
+    transition:.3s;
+
+}
+
+.np-pill:hover{
+
+    transform:translateY(-6px);
+
+    box-shadow:0 15px 35px rgba(16,185,129,.12);
+
+}
+
+.np-pill-icon{
+
+    font-size:1.9rem;
+
+}
+
+.np-pill-value{
+
+    margin-top:12px;
+
+    font-size:1.25rem;
+
+    font-weight:700;
+
+}
+
+.np-pill-label{
+
+    margin-top:6px;
+
+    color:#64748b;
+
+    font-size:.78rem;
+
+    text-transform:uppercase;
+
+}
+
+/* ===========================
+Nutrition Score
+=========================== */
+
+.np-score-row{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:14px;
+
+    align-items:center;
+
+    margin:22px 0;
+
+}
+
+.np-score-badge{
+
+    padding:10px 22px;
+
+    border-radius:999px;
+
+    background:linear-gradient(90deg,#10b981,#3b82f6);
+
+    color:white;
+
+    font-weight:700;
+
+    box-shadow:0 8px 20px rgba(16,185,129,.25);
+
+}
+
+.np-score-label{
+
+    font-weight:700;
+
+    font-size:1.05rem;
+
+}
+
+/* ===========================
+Tips
+=========================== */
+
+.np-tip{
+
+    line-height:1.9;
+
+    color:#334155;
+
+    font-size:1rem;
+
+}
+
+.np-tip-secondary{
+
+    color:#64748b;
+
+}
+
+/* ===========================
+Section Note
+=========================== */
+
+.np-section-note{
+
+    background:linear-gradient(90deg,#10b98115,#3b82f615);
+
+    border-left:5px solid var(--primary);
+
+    border-radius:18px;
+
+    padding:18px;
+
+    color:#065f46;
+
+    margin-bottom:22px;
+
+}
+
+/* ===========================
+Analyze Button
+=========================== */
+
+#analyze-btn{
+
+    width:100%;
+
+    height:58px;
+
+    font-size:1.05rem;
+
+    font-weight:700;
+
+    border-radius:16px;
+
+    border:none;
+
+    background:linear-gradient(90deg,#10b981,#059669);
+
+    color:white;
+
+    transition:.3s;
+
+}
+
+#analyze-btn:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 15px 35px rgba(16,185,129,.35);
+
+}
+
+/* ===========================
+Supported Foods
+=========================== */
+
+#supported-list{
+
+    color:#64748b;
+
+    margin-top:18px;
+
+    text-align:center;
+
+}
+
+#supported-list strong{
+
+    color:#111827;
+
+}
+
+/* ===========================
+Responsive
+=========================== */
+
+@media(max-width:768px){
+
+#np-title{
+
+font-size:2.2rem;
+
+}
+
+.np-card{
+
+padding:20px;
+
+}
+
+.np-card-header{
+
+flex-direction:column;
+
+}
+
+.np-confidence{
+
+text-align:left;
+
+}
+
+.np-pill-row{
+
+grid-template-columns:1fr;
+
+}
+
+}
+
+/* ===========================
+Dark Mode
+=========================== */
+
+@media (prefers-color-scheme: dark){
+
+body{
+
+background:#0f172a;
+
+}
+
+.np-card{
+
+background:#1e293bcc;
+
+border:1px solid #334155;
+
+}
+
+.np-pill{
+
+background:#1e293b;
+
+}
+
+.np-title{
+
+color:white;
+
+}
+
+.np-tip{
+
+color:#cbd5e1;
+
+}
+
+#np-subtitle{
+
+color:#94a3b8;
+
+}
+
+}
 
 with gr.Blocks(title="AI Nutrition Plate Analyzer", theme=gr.themes.Soft(primary_hue="green", secondary_hue="teal"), css=CUSTOM_CSS) as demo:
     gr.Markdown("# 🥗 AI Nutrition Plate Analyzer", elem_id="np-title")
