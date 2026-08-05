@@ -254,7 +254,7 @@ CUSTOM_CSS = """
     box-shadow:
         0 20px 50px rgba(15,23,42,.08);
 }
-"""
+
 :root{
     --primary:#10b981;
     --primary-dark:#059669;
@@ -750,7 +750,7 @@ color:#94a3b8;
 }
 
 }
-
+"""
 
 with gr.Blocks(title="AI Nutrition Plate Analyzer", theme=gr.themes.Soft(primary_hue="green", secondary_hue="teal"), css=CUSTOM_CSS) as demo:
     gr.Markdown("# 🥗 AI Nutrition Plate Analyzer", elem_id="np-title")
